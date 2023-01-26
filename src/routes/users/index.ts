@@ -10,8 +10,14 @@ import type { UserEntity } from '../../utils/DB/entities/DBUsers';
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
 ): Promise<void> => {
-  fastify.get('/', async function (request, reply): Promise<UserEntity[]> {});
 
+  fastify.get('/', async function (request, reply): Promise<UserEntity[]> {
+    const users = reply.send(fastify.db.users.findMany());   //получаем всех пользователей
+    return users;
+  });
+
+  //получаем пользователя по id
+  //в options помимо id нужен тип сопоставления (DBEntity.ts)
   fastify.get(
     '/:id',
     {
@@ -19,9 +25,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      const user = fastify.db.users.findOne({
+        key: 'id',
+        equals: request.params.id
+      });
+      return user;
+    }
   );
 
+  //создаём нового пользователя
   fastify.post(
     '/',
     {
@@ -29,9 +42,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         body: createUserBodySchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      const newUser = fastify.db.users.create(request.body);
+      return newUser;
+    }
   );
 
+  //удаляем пользователя
   fastify.delete(
     '/:id',
     {
@@ -39,7 +56,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      const deletedUser = fastify.db.users.delete(request.params.id);
+      return deletedUser;
+    }
   );
 
   fastify.post(
@@ -50,7 +70,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+     /* const sub = fastify.db.users.change(request.params.id);
+      return sub;*/
+
+    }
   );
 
   fastify.post(
@@ -61,8 +85,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+    /*const unsub =  fastify.db.users.change(request.params.id);
+    return unsub;*/
+    }
   );
+
 
   fastify.patch(
     '/:id',
@@ -72,7 +100,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+    const updatedUser = fastify.db.users.change(
+      request.params.id,
+      request.body
+      );
+      return updatedUser;
+    }
   );
 };
 
