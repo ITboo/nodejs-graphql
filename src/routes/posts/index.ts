@@ -26,6 +26,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         equals: request.params.id,
       });
 
+      if (post === null) {
+        throw fastify.httpErrors.notFound('Post not found');
+      };
+
       return reply.send(post);
     }
   );

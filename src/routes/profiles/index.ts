@@ -18,10 +18,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<ProfileEntity> {
+
       const profile = await fastify.db.profiles.findOne({
         key: 'id',
         equals: request.params.id,
       });
+
+      if (profile === null) {
+        throw fastify.httpErrors.notFound('Profile not found');
+      }
+      
       return reply.send(profile);
     }
   );

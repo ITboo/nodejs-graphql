@@ -27,6 +27,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
 				equals: request.params.id,
 			});
 
+      if (member === null) {
+        throw fastify.httpErrors.notFound('Type not found');
+      }
+
       return reply.send(member);
     }
   );
