@@ -27,7 +27,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       if (profile === null) {
         throw fastify.httpErrors.notFound('Profile not found');
       }
-      
+
       return reply.send(profile);
     }
   );
@@ -40,7 +40,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<ProfileEntity> {
+
       const newProfile = await fastify.db.profiles.create(request.body);
+      
       return reply.send(newProfile);
     }
   );
