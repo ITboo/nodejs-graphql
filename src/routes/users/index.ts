@@ -3,20 +3,17 @@ import { idParamSchema } from '../../utils/reusedSchemas';
 import {
   createUserBodySchema,
   changeUserBodySchema,
-  /*subscribeBodySchema,*/
+  subscribeBodySchema,
 } from './schemas';
 import type { UserEntity } from '../../utils/DB/entities/DBUsers';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
 ): Promise<void> => {
-
   fastify.get('/', async function (request, reply): Promise<UserEntity[]> {
-    const users = reply.send(fastify.db.users.findMany());
-    return users;
+    return await fastify.db.users.findMany()
   });
 
-  //в options помимо id нужен тип сопоставления (DBEntity.ts)
   fastify.get(
     '/:id',
     {
@@ -25,15 +22,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<UserEntity> {
-
-      const user = fastify.db.users.findOne({
-        key: 'id',
-        equals: request.params.id
-      });
+      const user = await fastify.db.users.findOne({ key: 'id', equals: request.params.id })
 
       if (user === null) {
-        throw fastify.httpErrors.notFound('User not found');
-      };
+        throw fastify.httpErrors.notFound()
+      }
 
       return reply.send(user);
     }
@@ -47,14 +40,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<UserEntity> {
-
-      const newUser = fastify.db.users.create(request.body);
-
+      const newUser = await fastify.db.users.create(request.body)
       return reply.send(newUser);
     }
   );
 
-  //TO-DO: httpErrors.badRequest
   fastify.delete(
     '/:id',
     {
@@ -63,20 +53,32 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<UserEntity> {
-
-      const user = await fastify.db.users.findOne({ key: 'id', equals: request.params.id });
-
+      const user = await fastify.db.users.findOne({ key: 'id', equals: request.params.id })
       if (user === null) {
-        throw fastify.httpErrors.badRequest('User not found');
+        throw fastify.httpErrors.badRequest()
       }
-      
-      const deletedUser = fastify.db.users.delete(request.params.id);
-      return reply.send(deletedUser);
+
+      const posts = await fastify.db.posts.findMany({ key: 'userId', equals: request.params.id })
+      await Promise.all(posts.map(async (post) => {
+        await fastify.db.posts.delete(post.id)
+      }))
+
+      const profile = await fastify.db.profiles.findOne({ key: 'userId', equals: request.params.id })
+      profile && await fastify.db.profiles.delete(profile.id)
+
+      const subs = await fastify.db.users.findMany({ key: 'subscribedToUserIds', inArray: request.params.id })
+      await Promise.all(subs.map(async (user) => {
+        const { id, ...changes } = user
+        const newSub = changes.subscribedToUserIds.filter(id => id !== request.params.id)
+        return await fastify.db.users.change(user.id, { ...changes, subscribedToUserIds: newSub })
+      }))
+
+      const deletedUser = await fastify.db.users.delete(request.params.id)
+      return deletedUser;
     }
   );
 
-  //TO-DO: user, sub, httpErrors.badRequest
-  /*fastify.post(
+  fastify.post(
     '/:id/subscribeTo',
     {
       schema: {
@@ -85,28 +87,22 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<UserEntity> {
+      const user = await fastify.db.users.findOne({ key: 'id', equals: request.body.userId })
 
-      const sub = await fastify.db.users.findOne({
-        key: 'id',
-        equals: request.params.id,
-      });
+      if (user === null) {
+        throw fastify.httpErrors.badRequest()
+      }
 
-      const subTo = await fastify.db.users.findOne({
-        key: 'id',
-        equals: request.body.userId,
-      });
+      user.subscribedToUserIds.push(request.params.id)
 
-      const updatedUser = await fastify.db.users.change(
-        request.body.userId,
-        { subscribedToUserIds: [...sub.subscribedToUserIds, request.params.id] },
-      );
+      const { id, ...changes } = user
+      const updatedUser = await fastify.db.users.change(request.body.userId, changes)
 
       return updatedUser;
     }
-  );*/
+  );
 
-  //TO-DO: user, unsub, httpErrors.badRequest
-  /*fastify.post(
+  fastify.post(
     '/:id/unsubscribeFrom',
     {
       schema: {
@@ -115,25 +111,23 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<UserEntity> {
+      const user = await fastify.db.users.findOne({ key: 'id', equals: request.body.userId })
 
-      const unsub = await fastify.db.users.findOne({
-        key: 'id',
-        equals: request.params.id,
-      });
+      if (user === null) {
+        throw fastify.httpErrors.badRequest()
+      }
+      if (!user.subscribedToUserIds.includes(request.params.id)) {
+        throw fastify.httpErrors.badRequest()
+      }
 
-      const unsubFrom = await fastify.db.users.findOne({
-        key: 'id',
-        equals: request.body.userId,
-      });
+      const newSub = user.subscribedToUserIds.filter(id => id !== request.params.id)
 
-      const updatedUser = fastify.db.users.change(
-        request.body.userId,
-        { subscribedToUserIds: unsub.subscribedToUserIds}
-      );
+      const { id, ...changes } = user
+      const updatedUser = await fastify.db.users.change(request.body.userId, { ...changes, subscribedToUserIds: newSub })
 
       return updatedUser;
     }
-  );*/
+  );
 
   fastify.patch(
     '/:id',
@@ -144,11 +138,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<UserEntity> {
-      const updatedUser = fastify.db.users.change(
-        request.params.id,
-        request.body
-      );
-      return reply.send(updatedUser);
+      const user = await fastify.db.users.findOne({ key: 'id', equals: request.params.id })
+
+      if (user === null) {
+        throw fastify.httpErrors.badRequest()
+      }
+
+      const updatedUser = await fastify.db.users.change(request.params.id, request.body)
+      return updatedUser;
     }
   );
 };
