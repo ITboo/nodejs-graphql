@@ -28,7 +28,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         throw fastify.httpErrors.notFound()
       }
 
-      return reply.send(user);
+      return user;
     }
   );
 
@@ -41,7 +41,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function (request, reply): Promise<UserEntity> {
       const newUser = await fastify.db.users.create(request.body)
-      return reply.send(newUser);
+      return newUser;
     }
   );
 
