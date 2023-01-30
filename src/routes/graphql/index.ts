@@ -31,7 +31,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         schema,
         source: String(request.body.query),
         contextValue: fastify,
-        variableValues: variables, //All dynamic values should be sent via "variables" field.
+        variableValues: request.body.variables, //All dynamic values should be sent via "variables" field.
       });
     }
   );
