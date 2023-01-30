@@ -1,13 +1,10 @@
 import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-schema-to-ts';
 import { graphqlBodySchema } from './schema';
-
-/*Чтобы заставить graphql работать, вам надо импортировать graphql функцию из пакета graphql, передать ей необходимые параметры и вернуть клиенту результат запуска этой функции*/
-import { graphql, GraphQLSchema, /*validate*/ } from 'graphql';
-/*нужно описать какие сущности знает сервер (например user и у него есть такие-то поля), а потом написать т.н. ресолверы (resolvers) которые будут возвращать эти данные по требованию (например все юзеры, или юзер с айди 1)*/
+import { graphql, GraphQLSchema, validate, parse, ExecutionResult } from 'graphql';
 import { query } from './graphQLSchema/query';
 import { mutation } from './graphQLSchema/mutation';
 
-//import  from 'graphql-depth-limit';
+import * as depth_limit from 'graphql-depth-limit';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -25,13 +22,23 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         mutation: mutation,
       });
 
-      //const errors = validate
+      const DEPTH_LIMIT = 6;
+      const errors = validate(schema, parse(request.body.query!), [depth_limit(DEPTH_LIMIT)]);
+
+      if (errors.length > 0) {
+        const validateResult: ExecutionResult = { //ExecutionResult represents the result of execution.
+          data: null,
+          errors: errors,
+        };
+
+        return validateResult;
+      }
 
       return await graphql({
         schema,
         source: String(request.body.query),
         contextValue: fastify,
-        variableValues: request.body.variables, //All dynamic values should be sent via "variables" field.
+        variableValues: request.body.variables,
       });
     }
   );
