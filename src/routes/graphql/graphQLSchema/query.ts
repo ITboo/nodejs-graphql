@@ -2,6 +2,7 @@ import {
     GraphQLObjectType,
     GraphQLList
 } from 'graphql';
+import { MEMBER_TYPE_NOT_FOUND, POST_NOT_FOUND, PROFILE_NOT_FOUND, USER_NOT_FOUND } from '../../../constants/errors';
 import {
     GraphQLUser,
     GraphQLProfile,
@@ -23,7 +24,7 @@ export const query = new GraphQLObjectType({
             async resolve(parent, args, fastify) {
                 const user = await fastify.db.users.findOne({ key: 'id', equals: args.id });
                 if (user === null) {
-                    throw fastify.httpErrors.notFound();
+                    throw fastify.httpErrors.notFound(USER_NOT_FOUND);
                 }
                 return user;
             }
@@ -38,7 +39,7 @@ export const query = new GraphQLObjectType({
             async resolve(parent, args, fastify) {
                 const profile = await fastify.db.profiles.findOne({ key: 'id', equals: args.id });
                 if (profile === null) {
-                    throw fastify.httpErrors.notFound();
+                    throw fastify.httpErrors.notFound(PROFILE_NOT_FOUND);
                 }
                 return profile;
             }
@@ -53,7 +54,7 @@ export const query = new GraphQLObjectType({
             async resolve(parent, args, fastify) {
                 const post = await fastify.db.posts.findOne({ key: 'id', equals: args.id });
                 if (post === null) {
-                    throw fastify.httpErrors.notFound();
+                    throw fastify.httpErrors.notFound(POST_NOT_FOUND);
                 };
                 return post;
             }
@@ -68,7 +69,7 @@ export const query = new GraphQLObjectType({
             async resolve(parent, args, fastify) {
                 const memberType = await fastify.db.memberTypes.findOne({ key: 'id', equals: args.id });
                 if (memberType === null) {
-                    throw fastify.httpErrors.notFound();
+                    throw fastify.httpErrors.notFound(MEMBER_TYPE_NOT_FOUND);
                 }
                 return memberType;
             }

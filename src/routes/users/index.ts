@@ -6,6 +6,7 @@ import {
   subscribeBodySchema,
 } from './schemas';
 import type { UserEntity } from '../../utils/DB/entities/DBUsers';
+import {USER_NOT_FOUND} from '../../constants/errors';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -25,7 +26,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const user = await fastify.db.users.findOne({ key: 'id', equals: request.params.id })
 
       if (user === null) {
-        throw fastify.httpErrors.notFound()
+        throw fastify.httpErrors.notFound(USER_NOT_FOUND)
       }
 
       return user;

@@ -2,6 +2,7 @@ import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-sc
 import { idParamSchema } from '../../utils/reusedSchemas';
 import { changeMemberTypeBodySchema } from './schema';
 import type { MemberTypeEntity } from '../../utils/DB/entities/DBMemberTypes';
+import {MEMBER_TYPE_NOT_FOUND} from '../../constants/errors';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -25,7 +26,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       });
 
       if (mType === null) {
-        throw fastify.httpErrors.notFound('Type not found');
+        throw fastify.httpErrors.notFound(MEMBER_TYPE_NOT_FOUND);
       }
 
       return reply.send(mType);

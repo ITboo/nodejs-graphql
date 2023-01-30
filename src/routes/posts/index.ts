@@ -2,6 +2,7 @@ import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-sc
 import { idParamSchema } from '../../utils/reusedSchemas';
 import { createPostBodySchema, changePostBodySchema } from './schema';
 import type { PostEntity } from '../../utils/DB/entities/DBPosts';
+import {POST_NOT_FOUND} from '../../constants/errors';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -27,7 +28,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       });
 
       if (post === null) {
-        throw fastify.httpErrors.notFound('Post not found');
+        throw fastify.httpErrors.notFound(POST_NOT_FOUND);
       };
 
       return reply.send(post);

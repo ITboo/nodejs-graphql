@@ -2,6 +2,7 @@ import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-sc
 import { idParamSchema } from '../../utils/reusedSchemas';
 import { createProfileBodySchema, changeProfileBodySchema } from './schema';
 import type { ProfileEntity } from '../../utils/DB/entities/DBProfiles';
+import {PROFILE_NOT_FOUND} from '../../constants/errors';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify,
@@ -21,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const profile = await fastify.db.profiles.findOne({ key: 'id', equals: request.params.id });
 
       if (profile === null) {
-        throw fastify.httpErrors.notFound();
+        throw fastify.httpErrors.notFound(PROFILE_NOT_FOUND);
       }
 
       return profile;
