@@ -1,21 +1,17 @@
-/*var userType = new graphql.GraphQLObjectType({
-  name: 'User',
-  fields: {
-    id: { type: graphql.GraphQLString },
-    name: { type: graphql.GraphQLString },
-  }
-});*/
-
 import {
-  GraphQLObjectType,//Almost all of the GraphQL types you define will be object types. Object types have a name, but most importantly describe their fields.
-  GraphQLInputObjectType,// input object defines a structured collection of fields which may be supplied to a field argument.
-  GraphQLID, //represents an ID.
-  GraphQLList,// list is a kind of type marker, a wrapping type which points to another type.
-  GraphQLString,//represents a string.
-  GraphQLNonNull//Using NonNull will ensure that a value must be provided by the query
+  GraphQLObjectType,
+  GraphQLInputObjectType,
+  GraphQLID,
+  GraphQLList,
+  GraphQLString,
+  GraphQLNonNull
 } from 'graphql';
+import { POST_NOT_FOUND, PROFILE_NOT_FOUND } from '../../../constants/errors';
 
-export const GraphQLUser = new GraphQLObjectType({
+import { GraphQLPost, GraphQLProfile, GraphQLMemberType } from './index';
+
+export let GraphQLUser: GraphQLObjectType
+GraphQLUser = new GraphQLObjectType({
   name: 'GraphQLUser',
   fields: () => ({
     id: { type: GraphQLID },
@@ -23,12 +19,52 @@ export const GraphQLUser = new GraphQLObjectType({
     lastName: { type: GraphQLString },
     email: { type: GraphQLString },
     subscribedToUserIds: { type: new GraphQLList(GraphQLString) },
-    /*profile: {},
-    posts: {},
-    memberType: {},
-    subscribedToUser: {},
-    userSubscribedTo: {},*/
-  }),
+    profile: {
+      type: GraphQLProfile,
+      async resolve(parent, args, fastify) {
+        const profile = await fastify.db.profiles.findOne({ key: 'userId', equals: parent.id });
+        if (profile === null) {
+          throw fastify.httpErrors.notFound(PROFILE_NOT_FOUND);
+        }
+        return profile;
+      }
+    },
+    posts: {
+      type: new GraphQLList(GraphQLPost),
+      async resolve(parent, args, fastify) {
+        const posts = await fastify.db.posts.findMany({ key: 'userId', equals: parent.id });
+        if (posts === null) {
+          throw fastify.httpErrors.notFound(POST_NOT_FOUND);
+        }
+        return posts;
+      }
+    },
+    memberType: {
+      type: GraphQLMemberType,
+      async resolve(parent, args, fastify) {
+        const profile = await fastify.db.profiles.findOne({ key: 'userId', equals: parent.id });
+        if (profile === null) {
+          throw fastify.httpErrors.notFound();
+        }
+        return fastify.db.memberTypes.findOne({
+          key: "id",
+          equals: profile.memberTypeId,
+        });
+      }
+    },
+      userSubscribedTo: {
+      type: new GraphQLList(GraphQLUser),
+      async resolve(parent, args, fastify) {
+        return fastify.db.users.findMany({ key: 'subscribedToUserIds', inArray: parent.id });
+      }
+    },
+    subscribedToUser: {
+      type: new GraphQLList(GraphQLUser),
+      async resolve(parent, args, fastify) {
+        return fastify.db.users.findMany({ key: 'id', equalsAnyOf: parent.subscribedToUserIds });
+      }
+    }
+  })
 });
 
 export const CreateUser = new GraphQLInputObjectType({

@@ -6,7 +6,7 @@
 [16:26]
 читать тут https://www.npmjs.com/package/dataloader - Batch function*/
 
-import * as DataLoader from 'dataloader';
+//import * as DataLoader from 'dataloader';
 
 /*const userLoader = new DataLoader(keys => myBatchGetUsers(keys))
 
