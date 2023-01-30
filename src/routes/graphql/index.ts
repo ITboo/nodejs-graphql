@@ -5,6 +5,7 @@ import { query } from './graphQLSchema/query';
 import { mutation } from './graphQLSchema/mutation';
 
 import * as depth_limit from 'graphql-depth-limit';
+import { DEPTH_LIMIT } from './constants/depthLimit';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -22,7 +23,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         mutation: mutation,
       });
 
-      const DEPTH_LIMIT = 6;
       const errors = validate(schema, parse(request.body.query!), [depth_limit(DEPTH_LIMIT)]);
 
       if (errors.length > 0) {
