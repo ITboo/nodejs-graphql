@@ -7,7 +7,7 @@ import {
     GraphQLProfile,
     GraphQLPost,
     GraphQLMemberType
-} from './types/index';
+} from '../types/index';
 
 /* функция resolve() принимает 3 аргумента. Добавь их, и выведи - там третьим аргументов будет фастифай. resolve(parent, args, fastify)*/
 export const query = new GraphQLObjectType({

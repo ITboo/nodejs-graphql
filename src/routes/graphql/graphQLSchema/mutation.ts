@@ -14,7 +14,7 @@ import {
   UpdatePost,
   GraphQLMemberType,
   UpdateMemberType
-} from './types/index';
+} from '../types/index';
 
 
 export const mutation = new GraphQLObjectType({

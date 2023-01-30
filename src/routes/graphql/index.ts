@@ -4,8 +4,8 @@ import { graphqlBodySchema } from './schema';
 /*Чтобы заставить graphql работать, вам надо импортировать graphql функцию из пакета graphql, передать ей необходимые параметры и вернуть клиенту результат запуска этой функции*/
 import { graphql, GraphQLSchema, /*validate*/ } from 'graphql';
 /*нужно описать какие сущности знает сервер (например user и у него есть такие-то поля), а потом написать т.н. ресолверы (resolvers) которые будут возвращать эти данные по требованию (например все юзеры, или юзер с айди 1)*/
-import { query } from './query';
-import { mutation } from './mutation';
+import { query } from './graphQLSchema/query';
+import { mutation } from './graphQLSchema/mutation';
 
 //import  from 'graphql-depth-limit';
 
