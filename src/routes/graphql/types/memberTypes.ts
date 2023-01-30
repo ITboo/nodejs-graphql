@@ -1,7 +1,10 @@
 import {
+    GraphQLID,
     GraphQLInt,
     GraphQLObjectType,
-    GraphQLString
+    GraphQLInputObjectType,
+    GraphQLString,
+    GraphQLNonNull
 } from 'graphql';
 
 export const GraphQLMemberType = new GraphQLObjectType({
@@ -13,6 +16,11 @@ export const GraphQLMemberType = new GraphQLObjectType({
     }),
 });
 
-/*
-export const UpdateMember
-*/
+export const UpdateMemberType = new GraphQLInputObjectType({
+	name: 'UpdateMemberInput',
+	fields: {
+		id: { type: new GraphQLNonNull(GraphQLID) },
+		discount: { type: GraphQLInt },
+		monthPostsLimit: { type: GraphQLInt },
+	},
+});

@@ -3,6 +3,8 @@ import { graphqlBodySchema } from './schema';
 
 /*Чтобы заставить graphql работать, вам надо импортировать graphql функцию из пакета graphql, передать ей необходимые параметры и вернуть клиенту результат запуска этой функции*/
 import { graphql, GraphQLSchema, validate } from 'graphql';
+/*нужно описать какие сущности знает сервер (например user и у него есть такие-то поля), а потом написать т.н. ресолверы (resolvers) которые будут возвращать эти данные по требованию (например все юзеры, или юзер с айди 1)*/
+import { query } from './query';
 
 //import  from 'graphql-depth-limit';
 
@@ -18,11 +20,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function (request, reply) {
       const schema = new GraphQLSchema({
-        query: await ,
-        mutation: await ,
+        query: query,
+        mutation: mutation,
       });
 
-//const errors = validate
+      //const errors = validate
 
       return await graphql({
         schema,
@@ -35,14 +37,3 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
 };
 
 export default plugin;
-
-/*
- Передача fastify в contextValue, позволит обращаться к инстансу сервера в качестве третьего параметра функции 
-resolve(source, args, context){}
-Непосредственно в резолвере удобно обращаться к серверу, через 
-fastify.inject({
-              method: 'POST',
-              url: '/users',
-              payload: args,
-            })
-*/

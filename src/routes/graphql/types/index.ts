@@ -1,14 +1,34 @@
 import {
-    GraphQLMemberType } from "./memberTypes";
+    GraphQLMemberType,
+    UpdateMemberType
+} from "./memberTypes";
 import {
-    GraphQLPost } from "./posts";
+    GraphQLPost,
+    CreatePost,
+    UpdatePost
+} from "./posts";
 import {
-    GraphQLProfile } from "./profiles";
+    GraphQLProfile,
+    CreateProfile,
+    UpdateProfile
+} from "./profiles";
 import {
-    GraphQLUser } from "./users";
+    GraphQLUser,
+    CreateUser,
+    UpdateUser
+} from "./users";
 
 
-export {GraphQLUser}
-export {GraphQLProfile}
-export {GraphQLPost}
-export {GraphQLMemberType}
+export {
+    GraphQLUser,
+    CreateUser,
+    UpdateUser,
+    GraphQLProfile,
+    CreateProfile,
+    UpdateProfile,
+    GraphQLPost,
+    CreatePost,
+    UpdatePost,
+    GraphQLMemberType,
+    UpdateMemberType
+}
