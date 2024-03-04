@@ -2,6 +2,7 @@ import {
   GraphQLBoolean,
   GraphQLInt,
   GraphQLInputObjectType,
+  GraphQLNonNull,
   GraphQLObjectType,
 } from 'graphql';
 
@@ -51,9 +52,18 @@ export const ProfileType: GraphQLObjectType<ProfileParentType, ContextType> =
 export const CreateProfileInputType = new GraphQLInputObjectType({
   name: 'CreateProfileInput',
   fields: () => ({
+    isMale: { type: new GraphQLNonNull(GraphQLBoolean) },
+    yearOfBirth: { type: new GraphQLNonNull(GraphQLInt) },
+    userId: { type: new GraphQLNonNull(UUIDType) },
+    memberTypeId: { type: new GraphQLNonNull(MemberTypeId) },
+  }),
+});
+
+export const ChangeProfileInputType = new GraphQLInputObjectType({
+  name: 'ChangeProfileInput',
+  fields: () => ({
     isMale: { type: GraphQLBoolean },
     yearOfBirth: { type: GraphQLInt },
-    userId: { type: UUIDType },
     memberTypeId: { type: MemberTypeId },
   }),
 });
