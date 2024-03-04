@@ -9,6 +9,7 @@ import {
 
 import { ContextType } from '../../types/context.js';
 import { UUIDType } from '../../types/uuid.js';
+
 import { ProfileType, ProfileSchemaType } from '../profile/types.js';
 import { PostSchemaType, PostType } from '../post/types.js';
 
@@ -38,7 +39,7 @@ export const UserType: GraphQLObjectType<UserSchemaType, ContextType> =
       profile: {
         type: ProfileType,
         resolve: async (parent, _args: unknown, context) => {
-          const profile = await context.dataloaders.profileDL.load(parent.id);
+          const profile = await context.dataloaders.profileDataLoader.load(parent.id);
           return profile;
         },
       },
@@ -46,7 +47,7 @@ export const UserType: GraphQLObjectType<UserSchemaType, ContextType> =
       posts: {
         type: new GraphQLList(PostType),
         resolve: async (parent, _args: unknown, context) => {
-          const posts = await context.dataloaders.postDL.load(parent.id);
+          const posts = await context.dataloaders.postDataLoader.load(parent.id);
           return posts;
         },
       },
@@ -56,7 +57,7 @@ export const UserType: GraphQLObjectType<UserSchemaType, ContextType> =
         resolve: async (parent, _args: unknown, context) => {
           if (parent.userSubscribedTo && parent.userSubscribedTo.length) {
             const usersIds = parent.userSubscribedTo.map((user) => user.authorId);
-            const authors = context.dataloaders.userDL.loadMany(usersIds);
+            const authors = context.dataloaders.userDataLoader.loadMany(usersIds);
             return authors;
           }
         },
@@ -67,7 +68,7 @@ export const UserType: GraphQLObjectType<UserSchemaType, ContextType> =
         resolve: async (parent, _args: unknown, context) => {
           if (parent.subscribedToUser && parent.subscribedToUser.length) {
             const usersIds = parent.subscribedToUser.map((user) => user.subscriberId);
-            const subscribers = context.dataloaders.userDL.loadMany(usersIds);
+            const subscribers = context.dataloaders.userDataLoader.loadMany(usersIds);
             return subscribers;
           }
         },

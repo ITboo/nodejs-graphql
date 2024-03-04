@@ -1,12 +1,56 @@
 import { PrismaClient } from '@prisma/client';
 import DataLoader from 'dataloader';
 
-import { MemberSchemaType } from '../schemas/member-type/types.js';
+import { UserSchemaType } from '../schemas/user/types.js';
 import { ProfileSchemaType } from '../schemas/profile/types.js';
 import { PostSchemaType } from '../schemas/post/types.js';
-import { UserSchemaType } from '../schemas/user/types.js';
+import { MemberSchemaType } from '../schemas/member-type/types.js';
 
-export const memberTypeDL = (prismaClient: PrismaClient) => {
+export const userDataLoader = (prismaClient: PrismaClient) => {
+  const dl = new DataLoader(async (ids: Readonly<string[]>) => {
+    const users: UserSchemaType[] = await prismaClient.user.findMany({
+      where: { id: { in: ids as string[] } },
+      include: { userSubscribedTo: true, subscribedToUser: true },
+    });
+
+    const usersByIds = ids.map((id) => users.find((user) => user.id === id));
+
+    return usersByIds;
+  });
+
+  return dl;
+};
+
+export const profileDataLoader = (prismaClient: PrismaClient) => {
+  const dl = new DataLoader(async (ids: Readonly<string[]>) => {
+    const profiles: ProfileSchemaType[] = await prismaClient.profile.findMany({
+      where: { userId: { in: ids as string[] } },
+    });
+
+    const profilesByIds = ids.map((id) =>
+      profiles.find((profile) => profile.userId === id),
+    );
+
+    return profilesByIds;
+  });
+  return dl;
+};
+
+export const postDataLoader = (prismaClient: PrismaClient) => {
+  const dl = new DataLoader(async (ids: Readonly<string[]>) => {
+    const posts: PostSchemaType[] = await prismaClient.post.findMany({
+      where: { authorId: { in: ids as string[] } },
+    });
+
+    const postsByIds = ids.map((id) => posts.filter((post) => post.authorId === id));
+
+    return postsByIds;
+  });
+
+  return dl;
+};
+
+export const memberTypeDataLoader = (prismaClient: PrismaClient) => {
   const dl = new DataLoader(async (ids: Readonly<string[]>) => {
     const memberTypes: MemberSchemaType[] = await prismaClient.memberType.findMany({
       where: { id: { in: ids as string[] } },
@@ -22,57 +66,13 @@ export const memberTypeDL = (prismaClient: PrismaClient) => {
   return dl;
 };
 
-export const profileDL = (prismaClient: PrismaClient) => {
-  const dl = new DataLoader(async (ids: Readonly<string[]>) => {
-    const profiles: ProfileSchemaType[] = await prismaClient.profile.findMany({
-      where: { userId: { in: ids as string[] } },
-    });
-
-    const profilesByIds = ids.map((id) =>
-      profiles.find((profile) => profile.userId === id),
-    );
-
-    return profilesByIds;
-  });
-  return dl;
-};
-
-export const postDL = (prismaClient: PrismaClient) => {
-  const dl = new DataLoader(async (ids: Readonly<string[]>) => {
-    const posts: PostSchemaType[] = await prismaClient.post.findMany({
-      where: { authorId: { in: ids as string[] } },
-    });
-
-    const postsByIds = ids.map((id) => posts.filter((post) => post.authorId === id));
-
-    return postsByIds;
-  });
-
-  return dl;
-};
-
-export const userDL = (prismaClient: PrismaClient) => {
-  const dl = new DataLoader(async (ids: Readonly<string[]>) => {
-    const users: UserSchemaType[] = await prismaClient.user.findMany({
-      where: { id: { in: ids as string[] } },
-      include: { userSubscribedTo: true, subscribedToUser: true },
-    });
-
-    const usersByIds = ids.map((id) => users.find((user) => user.id === id));
-
-    return usersByIds;
-  });
-
-  return dl;
-};
-
-const getDL = (prismaClient: PrismaClient) => {
+const getDataLoaders = (prismaClient: PrismaClient) => {
   return {
-    userDataLoader: userDL(prismaClient),
-    memberTypeDataLoader: memberTypeDL(prismaClient),
-    profileDataLoader: profileDL(prismaClient),
-    postDataLoader: postDL(prismaClient),
+    userDataLoader: userDataLoader(prismaClient),
+    profileDataLoader: profileDataLoader(prismaClient),
+    postDataLoader: postDataLoader(prismaClient),
+    memberTypeDataLoader: memberTypeDataLoader(prismaClient),
   };
 };
 
-export default getDL;
+export default getDataLoaders;

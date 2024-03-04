@@ -1,16 +1,24 @@
 import { GraphQLList, GraphQLResolveInfo } from 'graphql';
 import {
-  ResolveTree,
   parseResolveInfo,
   simplifyParsedResolveInfoFragmentWithType,
+  ResolveTree,
 } from 'graphql-parse-resolve-info';
 
 import { ContextType } from '../../types/context.js';
 import { UUIDType } from '../../types/uuid.js';
-
 import { UserSchemaType, UserType } from './types.js';
 
 const UserQueries = {
+  user: {
+    type: UserType,
+    args: { id: { type: UUIDType } },
+    resolve: async (_parent: unknown, args: { id: string }, context: ContextType) => {
+      const user = await context.dataloaders.userDataLoader.load(args.id);
+      return user;
+    },
+  },
+
   users: {
     type: new GraphQLList(UserType),
     resolve: async (
@@ -33,19 +41,10 @@ const UserQueries = {
       });
 
       users.forEach((user) => {
-        context.dataloaders.userDL.prime(user.id, user);
+        context.dataloaders.userDataLoader.prime(user.id, user);
       });
 
       return users;
-    },
-  },
-
-  user: {
-    type: UserType,
-    args: { id: { type: UUIDType } },
-    resolve: async (_parent: unknown, args: { id: string }, context: ContextType) => {
-      const user = await context.dataloaders.userDL.load(args.id);
-      return user;
     },
   },
 };

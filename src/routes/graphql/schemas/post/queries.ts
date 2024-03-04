@@ -6,7 +6,7 @@ import { UUIDType } from '../../types/uuid.js';
 import { PostType } from './types.js';
 
 const PostQueries = {
-  post: {
+   post: {
     type: PostType,
     args: { id: { type: UUIDType } },
     resolve: async (_parent: unknown, args: { id: string }, context: ContextType) => {

@@ -24,7 +24,6 @@ const ProfileQueries = {
       return profiles;
     },
   },
-
 };
 
 export default ProfileQueries;

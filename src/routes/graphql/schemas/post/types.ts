@@ -1,8 +1,8 @@
 import {
-  GraphQLInputObjectType,
-  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
+  GraphQLInputObjectType,
+  GraphQLNonNull,
 } from 'graphql';
 
 import { ContextType } from '../../types/context.js';
@@ -11,9 +11,9 @@ import { UserType } from '../user/types.js';
 
 export type PostSchemaType = {
   id: string;
+  authorId: string;
   title: string;
   content: string;
-  authorId: string;
 };
 
 export const PostType: GraphQLObjectType<PostSchemaType, ContextType> =
@@ -49,8 +49,8 @@ export const CreatePostInputType = new GraphQLInputObjectType({
 export const ChangePostInputType = new GraphQLInputObjectType({
   name: 'ChangePostInput',
   fields: () => ({
+    authorId: { type: UUIDType },
     title: { type: GraphQLString },
     content: { type: GraphQLString },
-    authorId: { type: UUIDType },
   }),
 });

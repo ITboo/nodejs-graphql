@@ -2,7 +2,6 @@ import { GraphQLBoolean } from 'graphql';
 
 import { ContextType } from '../../types/context.js';
 import { UUIDType } from '../../types/uuid.js';
-
 import { UserType, CreateUserInputType, ChangeUserInputType } from './types.js';
 
 type MutationsUserDtoType = {
@@ -24,6 +23,19 @@ const UserMutations = {
     },
   },
 
+  deleteUser: {
+    type: GraphQLBoolean,
+    args: { id: { type: UUIDType } },
+    resolve: async (_parent: unknown, args: { id: string }, context: ContextType) => {
+      try {
+        await context.prismaClient.user.delete({ where: { id: args.id } });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  },
+
   changeUser: {
     type: UserType,
     args: { id: { type: UUIDType }, dto: { type: ChangeUserInputType } },
@@ -37,19 +49,6 @@ const UserMutations = {
         data: args.dto,
       });
       return user;
-    },
-  },
-
-  deleteUser: {
-    type: GraphQLBoolean,
-    args: { id: { type: UUIDType } },
-    resolve: async (_parent: unknown, args: { id: string }, context: ContextType) => {
-      try {
-        await context.prismaClient.user.delete({ where: { id: args.id } });
-        return true;
-      } catch {
-        return false;
-      }
     },
   },
 

@@ -1,9 +1,9 @@
 import {
+  GraphQLObjectType,
   GraphQLBoolean,
   GraphQLInt,
   GraphQLInputObjectType,
   GraphQLNonNull,
-  GraphQLObjectType,
 } from 'graphql';
 
 import { ContextType } from '../../types/context.js';
@@ -43,7 +43,7 @@ export const ProfileType: GraphQLObjectType<ProfileSchemaType, ContextType> =
       memberType: {
         type: MemberType,
         resolve: async (parent, _args: unknown, context) => {
-          const memberType = await context.dataloaders.memberTypeDL.load(
+          const memberType = await context.dataloaders.memberTypeDataLoader.load(
             parent.memberTypeId,
           );
           return memberType;
