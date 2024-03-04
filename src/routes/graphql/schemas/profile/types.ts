@@ -12,12 +12,15 @@ import { UUIDType } from '../../types/uuid.js';
 import { UserType } from '../user/types.js';
 import { MemberType, MemberTypeId } from '../member-type/types.js';
 
-type ProfileParentType = {
+export type ProfileSchemaType = {
+  id: string;
   userId: string;
   memberTypeId: string;
+  isMale: boolean;
+  yearOfBirth: number;
 };
 
-export const ProfileType: GraphQLObjectType<ProfileParentType, ContextType> =
+export const ProfileType: GraphQLObjectType<ProfileSchemaType, ContextType> =
   new GraphQLObjectType({
     name: 'Profile',
     fields: () => ({

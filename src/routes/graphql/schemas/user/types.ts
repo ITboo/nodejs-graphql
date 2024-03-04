@@ -10,12 +10,26 @@ import {
 import { ContextType } from '../../types/context.js';
 import { UUIDType } from '../../types/uuid.js';
 
-import { ProfileType } from '../profile/types.js';
-import { PostType } from '../post/types.js';
+import { ProfileSchemaType, ProfileType } from '../profile/types.js';
+import { PostSchemaType, PostType } from '../post/types.js';
 
-type UserParentType = { id: string };
+type SubscriberSchemaType = {
+  subscriberId: string;
+  authorId: string;
+};
 
-export const UserType: GraphQLObjectType<UserParentType, ContextType> =
+export type UserSchemaType = {
+  id: string;
+  name: string;
+  balance: number;
+  profile?: ProfileSchemaType;
+  posts?: PostSchemaType[];
+  userSubscribedTo?: SubscriberSchemaType[];
+  subscribedToUser?: SubscriberSchemaType[];
+};
+
+
+export const UserType: GraphQLObjectType<UserSchemaType, ContextType> =
   new GraphQLObjectType({
     name: 'User',
     fields: () => ({
