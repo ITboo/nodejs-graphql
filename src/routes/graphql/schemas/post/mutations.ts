@@ -25,6 +25,7 @@ const PostMutations = {
     },
   },
 
+
   changePost: {
     type: PostType,
     args: { id: { type: UUIDType }, dto: { type: ChangePostInputType } },

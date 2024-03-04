@@ -2,6 +2,7 @@ import { GraphQLList } from 'graphql';
 
 import { ContextType } from '../../types/context.js';
 import { UUIDType } from '../../types/uuid.js';
+
 import { ProfileType } from './types.js';
 
 const ProfileQueries = {
@@ -23,6 +24,7 @@ const ProfileQueries = {
       return profiles;
     },
   },
+
 };
 
 export default ProfileQueries;

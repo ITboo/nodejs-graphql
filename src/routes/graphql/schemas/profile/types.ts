@@ -33,20 +33,20 @@ export const ProfileType: GraphQLObjectType<ProfileSchemaType, ContextType> =
       user: {
         type: UserType,
         resolve: async (parent, _args: unknown, context) => {
-          const profileUser = await context.prismaClient.user.findUnique({
+          const user = await context.prismaClient.user.findUnique({
             where: { id: parent.userId },
           });
-          return profileUser;
+          return user;
         },
       },
 
       memberType: {
         type: MemberType,
         resolve: async (parent, _args: unknown, context) => {
-          const userMemberType = await context.prismaClient.memberType.findUnique({
-            where: { id: parent.memberTypeId },
-          });
-          return userMemberType;
+          const memberType = await context.dataloaders.memberTypeDL.load(
+            parent.memberTypeId,
+          );
+          return memberType;
         },
       },
     }),

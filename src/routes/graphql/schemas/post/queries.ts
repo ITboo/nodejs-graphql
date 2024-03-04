@@ -22,6 +22,7 @@ const PostQueries = {
       return posts;
     },
   },
+
 };
 
 export default PostQueries;

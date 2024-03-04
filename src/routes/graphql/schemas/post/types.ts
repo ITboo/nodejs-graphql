@@ -1,8 +1,8 @@
 import {
-  GraphQLObjectType,
-  GraphQLNonNull,
-  GraphQLString,
   GraphQLInputObjectType,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
 } from 'graphql';
 
 import { ContextType } from '../../types/context.js';
@@ -27,11 +27,7 @@ export const PostType: GraphQLObjectType<PostSchemaType, ContextType> =
 
       author: {
         type: UserType,
-        resolve: async (
-          parent: { authorId: string },
-          _args: unknown,
-          context: ContextType,
-        ) => {
+        resolve: async (parent, _args: unknown, context: ContextType) => {
           const postAuthor = await context.prismaClient.user.findUnique({
             where: { id: parent.authorId },
           });
